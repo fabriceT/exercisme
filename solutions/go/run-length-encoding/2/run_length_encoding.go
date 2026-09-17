@@ -1,0 +1,62 @@
+package runlengthencoding
+
+import (
+	"strconv"
+	"strings"
+)
+
+func flush(sb *strings.Builder, r rune, count int) {
+	if r == 0 {
+		return
+	}
+
+	if count > 1 {
+		sb.WriteString(strconv.Itoa(count))
+	}
+	sb.WriteRune(r)
+}
+
+func RunLengthEncode(input string) string {
+	var sb strings.Builder
+	var previous rune
+	var count int
+
+	for _, r := range input {
+		if previous == r {
+			count++
+			continue
+		}
+
+		flush(&sb, previous, count)
+		count = 1
+		previous = r
+	}
+	flush(&sb, previous, count)
+
+	return sb.String()
+}
+
+func RunLengthDecode(input string) string {
+	var sb strings.Builder
+	var counter int
+	var count int
+
+	for _, r := range input {
+		if r >= '0' && r <= '9' {
+			counter = counter*10 + int(r-'0')
+			continue
+		}
+
+		if counter > 0 {
+			count = counter
+		} else {
+			count = 1
+		}
+		for range count {
+			sb.WriteRune(r)
+		}
+		counter = 0
+	}
+
+	return sb.String()
+}
